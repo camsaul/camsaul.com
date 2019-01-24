@@ -37,6 +37,9 @@ jobs:
           command: >
             aws configure set preview.cloudfront true &&
             aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths / /index.html /feed.xml
+      - run:
+          name: Ping Google
+          command: curl http://www.google.com/ping?sitemap=https://camsaul.com/feed.xml
 workflows:
   version: 2
   build:
