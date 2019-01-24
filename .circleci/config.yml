@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  deploy:
+    working_directory: /home/circleci/camsaul/camsaul.com
+    docker:
+      - image: camsaul/camsaul.com-docker
+    steps:
+      - restore_cache:
+          keys:
+            - source-{{ .Branch }}-{{ .Revision }}
+            - source-{{ .Branch }}
+            - source-
+      - checkout
+      - save_cache:
+          key: source-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - .git
+      - run: bundle install
+      - run:
+          name: Build website
+          command: bundle exec jekyll build
+      - run:
+          name: Upload website
+          command: aws --recursive s3 cp _site s3://camsaul.com/
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - deploy
