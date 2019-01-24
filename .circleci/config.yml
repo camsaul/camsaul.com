@@ -21,7 +21,7 @@ jobs:
           command: bundle exec jekyll build
       - run:
           name: Upload website
-          command: aws --recursive s3 cp _site s3://camsaul.com/
+          command: aws s3 sync _site s3://camsaul.com/
 
 workflows:
   version: 2

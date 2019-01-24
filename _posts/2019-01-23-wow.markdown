@@ -1,9 +1,0 @@
----
-layout: post
-title:  "Testing"
-date:   2019-01-23 20:57:00 -0800
-categories: announcement
----
-If this post shows up on camsaul.com, that means things are working correctly!
-
-:wow:
