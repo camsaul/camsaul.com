@@ -8,7 +8,7 @@ jobs:
       - restore_cache:
           keys:
             - source-{{ .Branch }}-{{ .Revision }}
-            - source-{{ .Branch }}
+            - source-{{ .Branch }}-
             - source-
       - checkout
       - save_cache:
@@ -16,14 +16,24 @@ jobs:
           paths:
             - .git
       - run: bundle install
+      - restore_cache:
+          keys:
+            - site-{{ .Branch }}-{{ .Revision }}
+            - site-{{ .Branch }}-
+            - site-
       - run:
           name: Build website
-          command: bundle exec jekyll build
+          command: bundle exec jekyll build --incremental
+      - save_cache:
+          key: site-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - _site
+            - .sass-cache
       - run:
           name: Upload website
           command: aws s3 sync _site s3://camsaul.com/
       - run:
-          name: Invalid Cached Pages
+          name: Invalidate Cached Pages
           command: >
             aws configure set preview.cloudfront true &&
             aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths / /index.html /feed.xml
@@ -31,4 +41,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - deploy
+      - deploy:
+          filters:
+            branches:
+              only: master
