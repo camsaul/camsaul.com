@@ -22,7 +22,11 @@ jobs:
       - run:
           name: Upload website
           command: aws s3 sync _site s3://camsaul.com/
-
+      - run:
+          name: Invalid Cached Pages
+          command: >
+            aws configure set preview.cloudfront true &&
+            aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths / /index.html /feed.xml
 workflows:
   version: 2
   build:
