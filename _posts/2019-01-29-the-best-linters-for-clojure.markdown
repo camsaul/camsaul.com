@@ -5,10 +5,10 @@ date: 2019-01-29 04:47:49 -0800
 categories: clojure
 ---
 
-Clojure linters have saved me a ton of time when managing huge open-source projects like [Metabase](https://github.com/metabase/metabase). It's a lot easier to enforce coding conventions
+Clojure linters have saved me a ton of time when managing huge open-source codebases like [Metabase](https://github.com/metabase/metabase). It's a lot easier to enforce coding conventions
 by having CI do it for you.
 
-Linters didn't existing for some of the things I wanted to lint, so I invested a bit of time writing a few of my own. This turned out to be time well spent; the up-front time I spent writing the
+Linters didn't exist for some of the things I wanted to lint, so I invested a bit of time writing a few of my own. This turned out to be time well spent; the up-front time I spent writing the
 linters was eventually repaid in the time I saved asking for people to fix things (or going in and fixing them myself).
 
 I'll have to write a blog post in the future about how to write Clojure linters, but in the meantime here's the four linters I use in every Clojure project:
