@@ -36,7 +36,7 @@ jobs:
           name: Invalidate Cached Pages
           command: >
             aws configure set preview.cloudfront true &&
-            aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths / /index.html /feed.xml
+            aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths '/*'
       - run:
           name: Ping Bing
           command: curl http://www.bing.com/webmaster/ping.aspx?siteMap=https://camsaul.com/feed.xml
