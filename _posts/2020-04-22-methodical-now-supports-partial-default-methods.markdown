@@ -41,14 +41,9 @@ value where the second value is `:y`, you are completely out of luck. The best y
   (let [default-method   (get-method vanilla-multimethod :default)
         x-default-method (get-method vanilla-multimethod [:default y])
         y-default-method (get-method vanilla-multimethod [x :default])]
-    (cond
-      (not= x-default-method default-method)
-      (x-default-method [x y])
-
-      (not= y-default-method default-method)
-      (y-default-method [x y])
-
-      :else
+    (condp not= default-method
+      x-default-method (x-default-method [x y])
+      y-default-method (y-default-method [x y])
       :default)))
 
 (vanilla-multimethod [nil :y]) ; -> :y-default
