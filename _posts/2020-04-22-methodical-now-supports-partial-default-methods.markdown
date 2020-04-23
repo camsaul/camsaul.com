@@ -112,6 +112,13 @@ Methodical now supports partial defaults! Here's how to do it in Methodical:
 (my-multimethod [nil :y]) ; -> :y-default
 ```
 
-The new `multi-default-dispatcher` is the default dispatcher, but with Methodical [you can customize method dispatch](https://github.com/camsaul/methodical#advanced-customization) and have it work any way you'd like!
+The new `multi-default-dispatcher` is the default dispatcher, but with Methodical [you can customize method
+dispatch](https://github.com/camsaul/methodical#advanced-customization) and have it work any way you'd like!
 
-Like and subscribe below!
+### How Can I Learn More?
+
+[I'm giving a talk about Methodical at Clojure/north this year](https://clojurenorth.com/cam-saul.html), so stay
+tuned! As far as I know, Clojure/north is going to be a remote conference due to Coronavirus concerns, so you can
+attend from anywhere in the world!
+
+👇 Like and subscribe below! 👇
