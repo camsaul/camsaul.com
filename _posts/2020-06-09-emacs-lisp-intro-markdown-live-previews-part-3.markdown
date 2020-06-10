@@ -5,7 +5,7 @@ date:   2020-06-09T19:12:00-07:00
 categories: emacs-lisp
 ---
 
-This post is part two of a series of 3 posts. View the other parts:
+This post is part three of a series of 3 posts. View the other parts:
 
 *  [Part 1](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-1.html)
 *  [Part 2](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-2.html)
@@ -21,7 +21,8 @@ We'll discuss the following Emacs Lisp concepts:
 
 *  Optional arguments
 *  `interactive` code characters
-*  `progn`
+*  `progn` forms
+*  `if` forms
 *  Docstrings
 *  Hooks
 *  Buffer-local variables
@@ -31,7 +32,7 @@ We'll discuss the following Emacs Lisp concepts:
 
 Here we've broken out `cam/preview-markdown` a bit further.
 
-This version of the function works the same as before when run programmatically,
+This version of the command works the same as before when run programmatically,
 but when executed interactively (e.g. via `M-x`) it will prompt you for the file
 to preview, complete with autocomplete; it defaults to the current file.
 
@@ -102,8 +103,9 @@ In
 ```
 
 we are making the `filename` argument optional, because we'd like to be able to
-call this function with an specific file to preview, but default to the current
-file when called with no argument (such as when it is called programmatically).
+call this function with a specific file to preview, but default to the current
+file when it is called with no argument (such as when it is called as part of a
+*hook*, as discussed below).
 
 ### Specifying a prompt in the `interactive` declaration
 
@@ -120,12 +122,62 @@ show the user in the minibuffer (`"File: "`). Note that we have to include the
 space after the prompt ourselves.
 
 The string name of the file the user chooses will be passed in as the `filename`
-argument. When the function is invoked programmatically by the
-`after-save-hook` (discussed below), `filename` will not be prompted for, and will be `nil`.
+argument. When the function is invoked programmatically, Emacs will not prompt
+the user for a value of `filename`.
+
+### `if` forms
+
+In Emacs Lisp, `if` forms have the syntax
+
+```emacs-lisp
+(if condition
+    then-form
+  else-forms...)
+```
+
+For example:
+
+```emacs-lisp
+;; t means true and nil means null/false
+(defun my-> (x y)
+  (if (> x y)
+      t
+    nil))
+
+(my-> 3 2)
+;; -> t
+```
+
+The `if` form in the example is roughly equivalent to this Algol-style if form:
+
+```javascript
+if (x > y) {
+  true;
+} else {
+  false;
+}
+```
 
 ### `progn` forms
 
-Let's take a deeper look at our simplified `cam/preview-markdown` function:
+`progn` can be used to execute multiple statements as a single form. (If you're
+familiar with Clojure, this is the classic Lisp equivalent of `do`). Each form is
+evaluated in order, and the result of a `progn` form is the result of the last
+form contained by it:
+
+```emacs-lisp
+(progn
+  (message "We are adding some numbers.")
+  (+ 3 4))
+;; -> 7
+```
+
+Because only the value of the last form is returned, forms other than the last
+are usually executed for side effects.
+
+### Understanding the updated `cam/preview-markdown`
+
+Now that we've discussed the new concepts, Let's take a deeper look at our simplified `cam/preview-markdown` function:
 
 ```emacs-lisp
 (defun cam/preview-markdown (&optional filename)
@@ -138,27 +190,16 @@ Let's take a deeper look at our simplified `cam/preview-markdown` function:
     (cam/-preview-markdown-file buffer-file-name)))
 ```
 
-1.  If a `filename` argument was passed, call `cam/-preview-markdown-file` with
-    that filename, then switch back to the current buffer
-    (`save-selected-window` also restores the current buffer, but doesn't
-    necessarily bring it to the top).
-2.  If no `filename` argument was passed, call `cam/-preview-markdown-file` with
-    the filename of the current buffer.
 
-`progn` can be used to execute multiple statements as a single form. (If you're
-familiar with Clojure, this is the classic Lisp equivalent of `do`). Each form is
-evaluated in order, and the result of a `progn` form is the result of the last
-form contained by it:
+1.  If a `filename` argument was passed:
+    1.  Call `cam/-preview-markdown-file` with that filename
+    2.  Switch back to the current buffer (`save-selected-window`, called in
+        `cam/-preview-markdown-file`, also restores the current buffer, but
+        doesn't necessarily bring it to the top).
+2.  If no `filename` argument was passed:
+    1.  Call `cam/-preview-markdown-file` with the filename of the current
+        buffer.
 
-```emacs-lisp
-(progn
-  (+ 1 2)
-  (+ 3 4))
-;; -> 7
-```
-
-Because the values of forms other than the last are discarded, the other forms
-passed to `progn` are usually executed for side effects.
 
 ### Opening a file/switching to existing buffer for a file
 
@@ -184,20 +225,21 @@ needed.
 ```
 
 Emacs Lisp docstrings come after the argument list but *before* the
-`interactive` declaration, if there is one. (For Clojure people -- this is an
-important difference.) Emacs Lisp docstrings conventionally mention arguments in
-all capital letters. When viewing the documentation for a function, arguments
-mentioned this way are highlighted automatically.
+`interactive` declaration, if there is one. Emacs Lisp docstrings conventionally
+mention arguments in all capital letters (e.g. `FILENAME`). When viewing the
+documentation for a function, arguments mentioned this way are highlighted
+automatically.
 
-You can add hyperlinks to other Emacs lisp functions or variables using the
+You can add hyperlinks to other Emacs Lisp functions or variables using the
 
 ```
 `symbol-name'
 ```
 
-syntax. These days you can also use curved single quotes instead, but figuring
-out how to type them involves effort, so I stick with the backtick-single-quote
-convention, which is the one you'll encounter most commonly in the wild.
+syntax. These days you can also use *curved* single quotes instead, but figuring
+out how to type them involves too much effort, so I stick with the
+backtick-single-quote convention, which is the one you'll encounter most
+commonly in the wild.
 
 Try it yourself! `C-h f cam/preview-markdown` to view the documentation for
 the function `cam/preview-markdown`.
@@ -222,7 +264,7 @@ Whenever we open a Markdown file, Emacs will set the major mode to
 the mode is entered. When we enter `markdown-mode`, Emacs will run any functions
 in `markdown-mode-hook`.
 
-To `markdown-mode-hook`, we add a *lambda* (anonymous function) that itself adds
+To `markdown-mode-hook` we add a *lambda* (anonymous function) that itself adds
 the command `#'cam/preview-markdown` to `after-save-hook`. Any functions in
 `after-save-hook` will run after a file is saved.
 
@@ -236,14 +278,14 @@ after saving a file.
 `add-hook` adds a function to a hook (which, again, is just a list), creating
 the variable if it doesn't already exist. `add-hook` has two `optional` args,
 `append` (default `nil`) and `local` (default `nil`). `append` tells it to add
-the function at the end of the list. In some cases, it is preferable to run a
-certain function after others in the hook have ran. In our case, it doesn't
-really matter if our function runs before or after others, so we'll pass the
-default value of `nil`. `local` tells it to add it to the *buffer-local* version
-of the hook rather than the global version. We'll explore the difference more in
-the future, but for now suffice to know that variables can have global values as
-well as values specific to a buffer. Buffer-local values overshadow
-global values.
+the function at the end of the list, meaning it gets ran last. In some cases, it
+is preferable to run a certain function after others in the hook have ran. In
+our case, it doesn't really matter if our function runs before or after others,
+so we'll pass the default value of `nil`. `local` tells it to add it to the
+*buffer-local* version of the hook rather than the global version. We'll explore
+the difference more in the future, but for now suffice to know that variables
+can have global values as well as values specific to a buffer. Buffer-local
+values overshadow global values.
 
 ```emacs-lisp
 (add-hook 'after-save-hook #'cam/preview-markdown)
@@ -266,6 +308,7 @@ Emacs Lisp is a Lisp-2, which means that variables and functions live in separat
 *and* a function named `length`.
 
 ```emacs-lisp
+;; Emacs Lisp
 (length '(1 2 3))
 ;; -> 3
 
@@ -279,6 +322,7 @@ Contrast this to Clojure, a Lisp-1, where variables and functions share a
 "namespace":
 
 ```clojure
+;; Clojure
 ;; count is the Clojure equivalent of length
 (count '(1 2 3))
 ;; -> 3
@@ -292,6 +336,7 @@ Contrast this to Clojure, a Lisp-1, where variables and functions share a
 Using functions passed as arguments is much simpler in Lisp-1s, however:
 
 ```clojure
+;; Clojure
 (defn call-f [f]
   (f 100))
 
@@ -302,6 +347,7 @@ Using functions passed as arguments is much simpler in Lisp-1s, however:
 With Lisp-2s, you have to use `funcall` to call a function bound to a variable:
 
 ```emacs-lisp
+;; Emacs Lisp
 ;; the symbol f refers only to variable, so to use it as a function contained in
 ;; f, you have to use funcall
 (defun call-f (f)
@@ -309,6 +355,23 @@ With Lisp-2s, you have to use `funcall` to call a function bound to a variable:
 
 (call-f (lambda (n) (1+ n)) 100)
 ;; -> 101
+```
+
+There are pros and cons to both Lisp-1s and Lisp-2s. Lisp-1s lend themselves
+more elegantly to passing around functions since you don't need to use special
+forms like `funcall`. However you have to be much more careful not to
+unintentionally overshadow functions in Lisp-1s, which usually means
+intentionally misspelling function parameter names. You'll often see nonsense
+like this in Lisp-1s:
+
+```clojure
+;; clojure
+;; so as to not overshadow the "type" function, we have to give our type
+;; parameter a different name, such as "typ"
+(defn type=
+  "True if the type of `x` is equal to `typ`."
+  [x typ]
+  (= (type x) typ))
 ```
 
 There are other differences to explore in the a future post, but let's get back to tweaking our command!
@@ -346,9 +409,10 @@ able to optimize `function` forms.
 
 Complete source for the final version can be found at this [GitHub
 Gist](https://gist.github.com/camsaul/71d8d8c3e9c1cc4e0a3ee2d4b04d0fef). Please
-feel free to leave comments or suggestions there!
+feel free to leave comments or suggestions there, or on [this Reddit
+thread](https://www.reddit.com/r/emacs/comments/h08cq8/intro_to_emacs_lisp_adding_live_previews_when/).
+If there's enough positive feedback from these posts, I'll be sure to add more!
 
 If you enjoyed these posts and have money burning a whole in your pocket,
 consider buying me a cup of coffee at [GitHub
-Sponsors](https://github.com/sponsors/camsaul). If there's enough positive
-feedback from these posts, I'll be sure to add more!
+Sponsors](https://github.com/sponsors/camsaul).

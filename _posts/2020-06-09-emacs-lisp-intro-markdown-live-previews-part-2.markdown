@@ -59,7 +59,7 @@ list that contains information as the base URL.
             ;; [1] Create the base URL
             (url (concat "file://" filename)))
         (erase-buffer)
-        ;; wrap `document` in a <base> element
+        ;; [2] wrap `document` in a <base> element
         (shr-insert-document `(base ((href . ,url)) ,document))
         (goto-char (point-min))))))
 ```
@@ -243,7 +243,8 @@ Luckily, we can use *backtick* or *backquote-splicing*, which is more fun. As
 mentioned before, we want something like `(base ((href . url)) document)`, but
 quoting the entire form e.g. `'(base ((href . url)) document)` won't work
 because then `url` or `document` would be quoted as well and thus wouldn't get
-evaluated. Luckily, there is a way quote things but selectively disable quoting:
+evaluated. Backquote splicing lets you quote things but selectively disable
+quoting:
 
 ```emacs-lisp
 (let ((document "my doc")
@@ -325,7 +326,7 @@ separate source file, it's probably less confusing if we make `*Preview Markdown
  a read-only buffer. Whether a buffer is read-only is determined by the
 variable `buffer-read-only`, which automatically becomes buffer-local if set.
 This means when you set this variable, you are setting it only for the current
-buffer; the current buffer's value with overshadow the global default value.
+buffer; the current buffer's value with overshadow the global value.
 
 `shell-command-on-region` will "helpfully" clear the read-only flag when it
 writes its output to `*Preview Markdown Output*`, so we don't have to worry
@@ -397,10 +398,11 @@ sense.
 
 So how does `setq` work if the variable name needs to be quoted? With macros,
 you can take the arguments you're passed, *before they are evaluated*, and
-generate whatever code you want. So `setq` could be implemented with a macro
-that quotes the variable name symbol. (`setq` is actually a built-in special
-form, but you can implement similar behavior with a macro). Here's a simple
-`setq`-style macro:
+generate whatever code you want. This new code is used in place of the macro form.
+
+`setq` could be implemented as a macro that quotes the variable name symbol.
+(`setq` is *actually* a built-in special form, but you can implement similar
+behavior with a macro). Here's a simple `setq`-style macro:
 
 ```emacs-lisp
 (defmacro my-setq (symbol value)
@@ -424,8 +426,8 @@ macro forms are expanded before ones nested inside them), and only *then* are
 variables and function calls evaluated.
 
 `(set 'x 100)` is just a list with the elements `set`, `'x`, and `100`, so if we
-have a macro generate that sort of list for us our dreams will come. We can use
-backquote splicing to easily construct our list.
+have a macro generate that sort of list for us our dreams will come true. In the
+example above, we use backquote splicing to construct our list.
 
 ##### Macroexpansion
 
@@ -445,9 +447,11 @@ form once instead of completely, you can use `macroexpand-1` instead of
 `macroexpand`. In the example above, the result of `my-setq` is already fully
 expanded, so both functions give you the same result.
 
-The command `pp-macroexpand-last-sexp` is useful for pretty-printing the results
-of a macro expansion; the [`macrostep`](https://github.com/joddie/macrostep)
-package lets you view the expansions of macros directly in your source code.
+When writing macros, some tools you might you might find the built-in
+`pp-macroexpand-last-sexp` command useful; it pretty-prints the results of a
+macro expansion. I'm also a big fan of the
+[`macrostep`](https://github.com/joddie/macrostep) package, which lets you view
+the expansions of macros directly in your source code.
 
 ### Scrolling to approximate location in preview
 
@@ -455,22 +459,29 @@ It's a little annoying to work on a giant Markdown file like this blog post and
 have the preview always scroll to the very top. Why not just have it scroll
 approximately the same position we're currently looking at?
 
-We can accomplish this by recording how far thru the Markdown document we are as
-a percentage of line numbers and then scroll the output to line number that is
-the closest percentage. For example, if our Markdown source file is 1000 lines,
-and the rendered output 800 lines, and the top of the window shows line 400,
-we'd record a `scroll-percentage` of 0.4 (40% scrolled), and we'll scroll to
-line 320 (800 * 0.4) in the output buffer.
+Here's the quick and dirty solution we'll implement:
+
+1. When first running our command, while the Markdown buffer is still current,
+   record how far we've scrolled thru the document (e.g. 40%).
+2. After we've rendered the HTML as GUI widgets, scroll to the line that is
+   approximately the same distance thru the document.
+
+This will work even if the rendered output has a lot more or less lines than the
+Markdown source. For example, if our Markdown source file is 1000 lines, and the
+rendered output 800 lines, and the top of the window shows line 400, we'd record
+a `scroll-percentage` of 0.4 (40% scrolled); in the rendered output, we'll
+scroll to line 320 (800 * 0.4).
 
 This isn't perfect, since there isn't a 1:1 translation between Markdown text
 and rendered HTML lines, but in my experience it works well enough that I
 haven't bothered creating a more sophisticated version.
 
-For readability, I broke the function out into a few separate functions. Since
-Emacs Lisp doesn't have encapsulation features like "private" functions,
-functions intended to be private are often given a name with a dash after the
-"namespace" part of the name, such as `package--function` or
-`package/-function`.
+For readability, I broke the command we've been working on out into a few
+separate functions. Since Emacs Lisp doesn't have encapsulation features like
+private functions, functions intended to be private are often given a name with
+a dash after the "namespace" part of the name, such as `package--function` or
+`package/-function`. Thus I named our "private" functions with the pattern
+`cam/-function-name`.
 
 ```emacs-lisp
 (defun cam/-scroll-percentage ()
@@ -503,31 +514,66 @@ functions intended to be private are often given a name with a dash after the
         (setq buffer-read-only t)))))
 ```
 
-This is pretty straightforward. First, we record the scroll percentage, using
-`(window-start)` to get the position of the first character visible in the
-current window, and use `line-number-at-pos` to convert the position to a line
-number. Then we get the final line number by calling `(line-number-at-pos (point-max))`. As
- in C, integer division is truncated.  By first casting the integers to floating-point numbers with
-`(float)` we can use floating-point division instead; the final result is a number like
-`0.4`.
+This is pretty straightforward. To calculate the scroll percentage, we:
 
-Once the output is rendered, we first move the cursor to the beginning
-of the buffer, then calculate the total number of lines using
-`(line-number-at-pos (point-max))`. We multiple this by `scroll-percentage` and
-call `truncate` to convert the floating point number to an integer by dropping
-the fractional values to get our target line number. Finally, since we're
-already at line 1, we move forward by `target-line-number - 1` lines; the `1-`
-function returns a its argument minus one.
+1.  Use `(window-start)` to get the position of the first character visible in
+    the current window
 
-Now that the cursor is at the correct position, we can scroll the window so the
-first line is the one with the cursor. `(point)` gets the current position of
-the cursor (the *point*) and `set-window-start` scrolls the window so that
-position is at the beginning of the window. Nice!
+2.  Use `line-number-at-pos` to convert the position to a line number.
+
+3.  Calculate the total number of lines by getting the line number of the last
+    character in the buffer by calling `(line-number-at-pos (point-max))`.
+
+4.  Divide the window start line by the last line to get a percentage. As in C,
+    integer division is truncated. By first casting the integers to
+    floating-point numbers with `(float)` we can use floating-point division
+    instead; the final result is a number like `0.4`.
+
+    ```emacs-lisp
+    (/ 40 100)
+    ;; -> 0
+
+    (/ (float 40) (float 100))
+    ;; -> 0.4
+    ```
+
+Once the output is rendered, to scroll to the line the desired line, we:
+
+1.  Move the cursor to the beginning of the buffer by calling `(goto-char (point-min))`
+
+2.  Calculate the total number of lines using `(line-number-at-pos (point-max))`
+
+3.  Multiply the total number of lines by `scroll-percentage`
+
+4.  Call `truncate` to convert the resulting floating point number to an
+    integer. The result of this is our `target-line-number`.
+
+    ```emacs-lisp
+    (truncate 20.5432)
+    ;; -> 20
+    ```
+
+5.  Next, we move the cursor to our target line. Since we already moved to line
+    1 in step 1, we need to move forward by `target-line-number - 1` lines.
+    `forward-line` is used to move forward a number of lines. For example, if we
+    want to move from line 1 to line 20, we can call `(forward-line 19)`. `1-`
+    function returns its argument minus one.
+
+    ```emacs-lisp
+    (1- 20)
+    ;; -> 19
+    ```
+
+6.  Now that the cursor is at the correct position, we can scroll the window so
+    the first line is the one with the cursor. `(point)` gets the current
+    position of the cursor (the *point*) and `set-window-start` scrolls the
+    window so it shows that position in the first line ("start") of the window.
+    Nice!
 
 # Next Steps
 
 In [Part 3](https://camsaul.com/emacs-lisp/2020/06/10/emacs-lisp-intro-markdown-live-previews-part-3.html), we'll have
 the command prompt us for a file to preview when running interactively, and have
 Emacs run it automatically whenever we save a Markdown file. We'll discuss
-optional arguments, `interactive` code characters, `progn` forms, hooks,
+optional arguments, `interactive` code characters, `progn` and `if` forms, hooks,
 buffer-local variables, and Lisp-2s.

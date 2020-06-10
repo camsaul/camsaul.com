@@ -5,7 +5,7 @@ date:   2020-06-09T13:12:00-07:00
 categories: emacs-lisp
 ---
 
-This post is part two of a series of 3 posts. View the other parts:
+This post is part one of a series of 3 posts. View the other parts:
 
 *  [Part 1](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-1.html)
 *  [Part 2](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-2.html)
@@ -152,13 +152,15 @@ our region to be the entire buffer. The functions `point-min` and `point-max`
 get the minimum possible position and maximum possible position in the current
 buffer respectively; together those positions represent the region we're operating on.
 
-Finally, we pass the string `"*Preview Markdown Output*"` to
-`shell-command-on-region` which tells it the name to use for the buffer it
-writes the output of the shell command to. Emacs Lisp buffers used for
-internally or for other special purposes are conventionally given names with
-asterisks (affectionately known as *earmuffs*), but you can actually name the
-buffer anything you want. `shell-command-on-region` will clear any existing
-contents of the buffer before writing the command output.
+The final argument to `shell-command-on-region`, `"*Preview Markdown Output*"`,
+tells it the name of the buffer to write the output of the shell command to
+(creating it if it doesn't already exist). If the buffer already exists,
+`shell-command-on-region` will clear any existing contents of the buffer before
+writing the command output.
+
+Emacs Lisp buffers used for internally or for other special purposes are conventionally given names with
+asterisks (affectionately known as *earmuffs*), but you could name the buffer
+anything you want.
 
 Go ahead and give it a try in your Markdown file buffer, and you'll see a buffer
 called `*Preview Markdown Output*` pop up with the HTML output.
@@ -310,5 +312,5 @@ backquote-splicing, and macros.
 In [Part 3](https://camsaul.com/emacs-lisp/2020/06/10/emacs-lisp-intro-markdown-live-previews-part-3.html), we'll have
 the command prompt us for a file to preview when running interactively, and have
 Emacs run it automatically whenever we save a Markdown file. We'll discuss
-optional arguments, `interactive` code characters, `progn` forms, hooks,
+optional arguments, `interactive` code characters, `progn` and `if` forms, hooks,
 buffer-local variables, and Lisp-2s.
