@@ -7,9 +7,9 @@ categories: emacs-lisp
 
 This post is part two of a series of 3 posts. View the other parts:
 
-*  [Part 1](./emacs-lisp-intro-markdown-live-previews-part-1.html)
-*  [Part 2](./emacs-lisp-intro-markdown-live-previews-part-2.html)
-*  [Part 3](./emacs-lisp-intro-markdown-live-previews-part-3.html)
+*  [Part 1](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-1.html)
+*  [Part 2](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-2.html)
+*  [Part 3](https://camsaul.com/emacs-lisp/2020/06/10/emacs-lisp-intro-markdown-live-previews-part-3.html)
 
 In this post, we'll make the command more useful by:
 

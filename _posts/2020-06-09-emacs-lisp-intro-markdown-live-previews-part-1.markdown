@@ -7,9 +7,9 @@ categories: emacs-lisp
 
 This post is part two of a series of 3 posts. View the other parts:
 
-*  [Part 1](./emacs-lisp-intro-markdown-live-previews-part-1.html)
-*  [Part 2](./emacs-lisp-intro-markdown-live-previews-part-2.html)
-*  [Part 3](./emacs-lisp-intro-markdown-live-previews-part-3.html)
+*  [Part 1](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-1.html)
+*  [Part 2](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-2.html)
+*  [Part 3](https://camsaul.com/emacs-lisp/2020/06/10/emacs-lisp-intro-markdown-live-previews-part-3.html)
 
 This is the first post in what I hope is an ongoing series of posts that show
 you how to get started with Emacs Lisp by writing practical Emacs commands and
@@ -302,11 +302,12 @@ buffer, again using `point-min` to determine the beginning.
 
 # Next Steps
 
-In [Part 2](./emacs-lisp-intro-markdown-live-previews-part-2.html), we'll make
+
+In [Part 2](https://camsaul.com/emacs-lisp/2020/06/09/emacs-lisp-intro-markdown-live-previews-part-2.html), we'll make
 improvements to the command, and discuss Emacs Lisp lists, cons cells,
 backquote-splicing, and macros.
 
-In [Part 3](./emacs-lisp-intro-markdown-live-previews-part-3.html), we'll have
+In [Part 3](https://camsaul.com/emacs-lisp/2020/06/10/emacs-lisp-intro-markdown-live-previews-part-3.html), we'll have
 the command prompt us for a file to preview when running interactively, and have
 Emacs run it automatically whenever we save a Markdown file. We'll discuss
 optional arguments, `interactive` code characters, `progn` forms, hooks,
