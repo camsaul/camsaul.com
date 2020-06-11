@@ -171,12 +171,12 @@ you'll really want to know when writing Emacs Lisp.
 ### Looking up documentation
 
 To look up documentation for a function, you can use `C-h f <name-of-function>`.
-If you want write Emacs Lisp, commit that keybinding to
-memory right away -- you'll be using it all the time. Try using it to learn more
-about one of functions we're using.
+If you want to write Emacs Lisp, commit that keybinding to memory right away --
+you'll be using it all the time. Try using it to learn more about one of the
+functions we're using.
 
 Similarly, `C-h v` opens documentation for a variable, and `C-h k` will tell you
-the function that gets run for given keybinding. Write these down on a Post-It
+the function that gets run for a given keybinding. Write these down on a Post-It
 and stick it to your computer until they are burned into your brain.
 
 ### Evaluating Emacs Lisp from the minibuffer with `M-:`
@@ -228,18 +228,102 @@ Not all buffers are associated with files. `*Preview Markdown Output*` isn't
 actually associated with a file, so `buffer-file-name` will be `nil` if we
 evaluate it with `*Preview Markdown Output*` as the current buffer. To work
 around this, we can evaluate `buffer-file-name` *before* we switch buffers and
-save it for later as the local variable local variable `filename`. `(let ...)`
-is used to introduce local bindings.
+save it for later as the local variable `filename`. `(let ...)` is used to
+introduce local bindings.
 
 ```emacs-lisp
+;; x = 100
 (let ((x 100))
   (+ x x))
 ;; -> 200
+```
 
+You might be wondering why you need two sets of parentheses to set `x` in the
+example above, especially if you're familiar with Clojure, where the equivalent
+`let` form would look like
+
+```clojure
+;; Clojure
+(let [x 100]
+  (+ x x))
+```
+
+And there's actually a very good explanation for this. The syntax for `let` is
+
+```emacs-lisp
+(let bindings
+  ...)
+```
+
+where `bindings` is a list of bindings of the form `(symbol value)`, e.g. `(x 100)`.
+This means you can pass in multiple bindings to bind multiple local
+variables at the same time:
+
+```emacs-lisp
+;; x, y = 100, 200
 (let ((x 100)
       (y 200))
   (+ x y))
 ;; -> 300
+```
+
+Bindings can also be of the form `symbol`, which is just shorthand for `(symbol nil)`:
+
+```emacs-lisp
+;; x = nil
+(let (x)
+  x)
+;; -> nil
+```
+
+This is sort of like declaring a variable in an Algol-family language, e.g.
+
+```javascript
+var x;
+```
+
+in JavaScript. In both languages, you'd probably do this with the intention of
+(possibly) giving this a value at some later point, e.g.
+
+```emacs-lisp
+;; x = nil
+(let (x)
+  ;; x = 100
+  (setq x 100)
+  x)
+;; -> 100
+```
+
+You can use `setq` to set the value of a variable. `setq` is discussed more at
+length in Part 2. Note that Emacs Lisp is much more of a traditional imperative
+language than strictly functional Lisps like Clojure. Saying a language is
+functional can mean different things. Emacs Lisp *is* functional in the sense
+that functions are first-class objects that can be passed around as parameters
+and returned. But it's not functional in the same pure function/immutable value
+sense that Clojure or Haskell are.
+
+There's one more thing you should know about `let`: bindings are done "in
+parallel". This doesn't mean they're done on separate threads, but does mean
+that they're all done independently of each other, as if other bindings in the
+`let` form didn't exist. All the values are calculated *first* and *then* the
+local variables are bound. So something like this doesn't work:
+
+```emacs-lisp
+(let ((x 100)
+      (y (+ x x)))
+  y)
+;; let: Symbol’s value as variable is void: x
+```
+
+Many times you do want local variables to be bound immediately so you can refer
+to them in binding forms that come after them. In this case, you can use `let*`,
+which binds things sequentially rather than in parallel:
+
+```emacs-lisp
+(let* ((x 100)
+       (y (+ x x)))
+  y)
+;; -> 200
 ```
 
 #### Switching to a different window
