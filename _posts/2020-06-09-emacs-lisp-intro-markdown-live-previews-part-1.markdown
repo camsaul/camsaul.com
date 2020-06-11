@@ -239,16 +239,7 @@ introduce local bindings.
 ```
 
 You might be wondering why you need two sets of parentheses to set `x` in the
-example above, especially if you're familiar with Clojure, where the equivalent
-`let` form would look like
-
-```clojure
-;; Clojure
-(let [x 100]
-  (+ x x))
-```
-
-And there's actually a very good explanation for this. The syntax for `let` is
+example above. The syntax for `let` is
 
 ```emacs-lisp
 (let bindings
@@ -256,8 +247,8 @@ And there's actually a very good explanation for this. The syntax for `let` is
 ```
 
 where `bindings` is a list of bindings of the form `(symbol value)`, e.g. `(x 100)`.
-This means you can pass in multiple bindings to bind multiple local
-variables at the same time:
+This means you can pass in multiple binding forms to bind several local
+variables at once:
 
 ```emacs-lisp
 ;; x, y = 100, 200
@@ -279,11 +270,12 @@ Bindings can also be of the form `symbol`, which is just shorthand for `(symbol 
 This is sort of like declaring a variable in an Algol-family language, e.g.
 
 ```javascript
+// JavaScript
 var x;
 ```
 
-in JavaScript. In both languages, you'd probably do this with the intention of
-(possibly) giving this a value at some later point, e.g.
+You'd probably do this with the intention of (maybe) giving that variable a
+value at some later point, e.g.
 
 ```emacs-lisp
 ;; x = nil
@@ -295,28 +287,38 @@ in JavaScript. In both languages, you'd probably do this with the intention of
 ```
 
 You can use `setq` to set the value of a variable. `setq` is discussed more at
-length in Part 2. Note that Emacs Lisp is much more of a traditional imperative
-language than strictly functional Lisps like Clojure. Saying a language is
-functional can mean different things. Emacs Lisp *is* functional in the sense
-that functions are first-class objects that can be passed around as parameters
-and returned. But it's not functional in the same pure function/immutable value
-sense that Clojure or Haskell are.
+length in Part 2. Note that Emacs Lisp is in many ways a traditional imperative
+language. Emacs Lisp *is* a functional language in the sense that functions are
+first-class objects that can be passed around as parameters and returned. But
+it's not a functional language in the same pure function/immutable value sense
+that Clojure or Haskell are.
 
-There's one more thing you should know about `let`: bindings are done "in
-parallel". This doesn't mean they're done on separate threads, but does mean
-that they're all done independently of each other, as if other bindings in the
-`let` form didn't exist. All the values are calculated *first* and *then* the
-local variables are bound. So something like this doesn't work:
+There's one more thing you should know about `let`: bindings are done
+independently of one another, as if they were done in parallel.
+
+```emacs-lisp
+(let ((x 100)
+      (y 200))
+  (+ x y))
+```
+
+is equivalent to the JavaScript
+
+```javascript
+// JavaScript
+[x, y] = [100, 200]
+```
+
+So something like this doesn't work:
 
 ```emacs-lisp
 (let ((x 100)
       (y (+ x x)))
   y)
-;; let: Symbol’s value as variable is void: x
+;; Error: x is not bound yet
 ```
 
-Many times you do want local variables to be bound immediately so you can refer
-to them in binding forms that come after them. In this case, you can use `let*`,
+Many times you do want to refer to the results of one binding form in a subsequent one. In this case, you can use `let*`,
 which binds things sequentially rather than in parallel:
 
 ```emacs-lisp
@@ -324,6 +326,14 @@ which binds things sequentially rather than in parallel:
        (y (+ x x)))
   y)
 ;; -> 200
+```
+
+This is the equivalent of the JavaScript
+
+```javascript
+// JavaScript
+x = 100;
+y = x + x;
 ```
 
 #### Switching to a different window
