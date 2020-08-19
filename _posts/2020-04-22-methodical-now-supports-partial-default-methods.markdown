@@ -2,7 +2,7 @@
 layout: post
 title:  "Methodical now supports partial default methods"
 date:   2020-04-22 20:36:00
-categories: announcement
+categories: methodical
 ---
 
 [Methodical](https://github.com/camsaul/methodical), my Clojure library that ports the "generic function" part of the

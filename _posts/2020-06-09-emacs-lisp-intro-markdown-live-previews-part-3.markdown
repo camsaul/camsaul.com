@@ -413,6 +413,6 @@ feel free to leave comments or suggestions there, or on [this Reddit
 thread](https://www.reddit.com/r/emacs/comments/h08cq8/intro_to_emacs_lisp_adding_live_previews_when/).
 If there's enough positive feedback from these posts, I'll be sure to add more!
 
-If you enjoyed these posts and have money burning a whole in your pocket,
+If you enjoyed these posts and have money burning a hole in your pocket,
 consider buying me a cup of coffee at [GitHub
 Sponsors](https://github.com/sponsors/camsaul).

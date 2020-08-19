@@ -2,7 +2,7 @@
 layout: post
 title:  "I will be giving a talk about Methodical at Clojure/north this year"
 date:   2020-04-22 20:26:00
-categories: announcement
+categories: methodical
 ---
 
 If I was better at updating my blog I would have posted this months ago. But better late than never!
