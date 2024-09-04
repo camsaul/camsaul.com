@@ -12,3 +12,6 @@ sudo apt install rubygems # if needed
 bundle install
 bundle exec jekyll serve
 ```
+
+Note: These deps don't seem to work on newer versions of Ruby; change `jekyll` to `4.3.3` in the Gemfile, delete
+`Gemfile.lock`, and run `bundle install` again if you run into problems.
