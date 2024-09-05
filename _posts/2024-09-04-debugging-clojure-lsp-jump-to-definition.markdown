@@ -5,8 +5,6 @@ date:   2024-09-03T15:13:00
 categories: clojure
 ---
 
-# Debugging Custom Kondo Hooks and Clojure LSP Jump-to-Definition Functionality
-
 At [Metabase](https://github.com/metabase/metabase) I wrote [a macro called
 `defendpoint`](https://github.com/metabase/metabase/blob/339ff2433d4a14f2d153d211746b75bf334f798b/src/metabase/api/common.clj#L384-L417)
 for defining (you guessed it!) REST API endpoints with a typical usage that looks something like
