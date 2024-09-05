@@ -249,7 +249,7 @@ Here's the fixed version of the hook above:
 ```
 
 The important change here was to give the generated function name symbol `POST_:id_copy` the metadata (line and column
-start and end numbers) from the original `"/:id/copy` string. It seems like without knowing where a function name is
+start and end numbers) from the original `"/:id/copy"` string. It seems like without knowing where a function name is
 defined in the text file (or rather, where it is restricted to) LSP for whatever reason was assuming the entire
 `defendpoint` form served as a the function name which meant any attempt to find the definition under the cursor
 anywhere in that form would assume you were trying jump to the function definition itself.
