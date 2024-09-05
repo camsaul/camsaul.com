@@ -257,7 +257,7 @@ anywhere in that form would assume you were trying jump to the function definiti
 Other changes I made which didn't seem to fix anything but seem more correct are:
 
 * `compojure.core/POST` now gets the metadata (line and column start and end numbers) from the original `POST` symbol
-  (named `method`) from the original node
+  (the `method` parameter) from the original node
 
 * The overall new top-level list node gets the metadata from the original top-level node rather than putting it on the
   generated `defn` node. Not sure this makes a huge difference TBH.
