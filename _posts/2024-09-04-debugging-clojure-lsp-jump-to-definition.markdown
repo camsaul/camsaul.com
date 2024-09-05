@@ -125,6 +125,14 @@ My hook basically looked like this (simplified a bit):
    [clj-kondo.hooks-api :as api]
    [clojure.string :as str])
 
+(defn route-fn-name
+  "route fn hook"
+  [method route]
+  (let [route (if (vector? route) (first route) route)]
+    (-> (str (name method) route)
+        (str/replace #"/" "_")
+        symbol)))
+
 ;;; Original custom Kondo hook -- BROKEN!!
 (defn defendpoint
   [arg]
