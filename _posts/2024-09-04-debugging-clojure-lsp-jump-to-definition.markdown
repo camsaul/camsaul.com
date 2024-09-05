@@ -67,6 +67,11 @@ same project I was debugging.
 This is the code I came up with while poking thru Kondo and LSP internals to debug things:
 
 ```clojure
+(require 'clj-kondo.hooks-api
+         'clojure-lsp.kondo
+         'clojure-lsp.queries
+         'clojure.java.io)
+
 (defn find-element [path line col]
   (binding [clj-kondo.hooks-api/*reload* true]
     (letfn [(analysis [path]
