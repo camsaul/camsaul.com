@@ -267,3 +267,5 @@ Other changes I made which didn't seem to fix anything but seem more correct are
 Custom Kondo hooks are powerful and worth the time it takes to wrap your head around
 [rewrite-clj](https://github.com/clj-commons/rewrite-clj). Debugging them is tricky, and debugging them when used by LSP
 is even trickier. I haven't seen it documented anywhere before, but it is possible. I hope you find this useful!
+
+👇 Like and subscribe below! 👇
